@@ -1,9 +1,12 @@
 const fileReader = require('./FileReader')
+const { net } = require('electron')
+let localStatus = {}
+
+exports.localStatus = localStatus
 
 exports.compareToLocal = async (data) => {
   let localData = await fileReader.buildFileStatus('testData')
-  let localStatus = {}
-
+    console.log('localstatuscheck', localStatus)
   //console.log('data', data)
   //console.log('localData', localData)
 
@@ -16,9 +19,29 @@ exports.compareToLocal = async (data) => {
       localStatus[key] = 0
     }
   })
-
-  return localStatus
 }
+
+exports.checkStatus = () => {
+    return new Promise((resolve, reject) => {
+      let request = net.request('http://localhost:3000/latest')
+      let buffer = []
+  
+      request.on('response', (response) => {
+        
+        response.on('data', (chunk) => {
+          buffer.push(chunk)
+        })
+    
+        response.on('end', async () => {
+          let data = JSON.parse(buffer.toString())
+          await this.compareToLocal(data)
+          resolve(localStatus)
+        })
+      })
+      request.end()
+    })
+  }
+
 
 /*   Buffer example
 ipcMain.on('getFileState', (event, arg) => {
