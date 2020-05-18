@@ -4,3 +4,21 @@
 // `nodeIntegration` is turned off. Use `preload.js` to
 // selectively enable features needed in the rendering
 // process.
+const checkForUpdatesButton = document.getElementById('checkForUpdatesButton')
+
+let getFileState = async () => {
+    console.log('checking for updates')
+    await ipcRenderer.send('getFileState')
+}
+
+checkForUpdatesButton.onclick = getFileState
+
+ipcRenderer.on('getFileState-response', async (event, arg) => {
+
+    console.log(arg)
+})
+
+ipcRenderer.on('fileStatusUpdate', (event, arg) => {
+    
+    console.log('filestatusupdate',arg)
+})
