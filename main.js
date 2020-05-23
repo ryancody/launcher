@@ -1,12 +1,14 @@
 // Modules to control application life and create native browser window
 const { app, BrowserWindow } = require('electron')
 const path = require('path')
-const localFileState = require('./controller/LocalFileState')
 const { ipcMain } = require('electron')
-
+const fileState = require('./controller/FileState')
+const {FileManager} = require('./controller/FileManager')
+const exec = require('child_process').execFile
+const targetPlayFile = './data/Client/NetworkRpg.exe'
+let fm = new FileManager('data')
 let mainWindow
-
-
+  
 function createWindow() {
   // Create the browser window.
   mainWindow = new BrowserWindow({
@@ -14,7 +16,8 @@ function createWindow() {
     height: 600,
     nodeIntegration: false,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js')
+      preload: path.join(__dirname, 'preload.js'),
+      contextIsolation: false
     }
   })
 
@@ -36,8 +39,27 @@ app.whenReady().then(async () => {
     // dock icon is clicked and there are no other windows open.
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
+}).then(async () => {
+  mainWindow.webContents.on('did-finish-load', () => {
+    let onStateUpdate = () => {
+      mainWindow.webContents.send('stateUpdate', fm.getStatus())
+    }
+    
+    fm.addStateUpdateListener(onStateUpdate)
+    fm.checkStatus()
+    
+    ipcMain.on('updateButtonClick', (event, arg) => {
+      fm.getUpdates()
+    })
 
-  runUpdateCheck()
+    ipcMain.on('playButtonClick', (event, arg) => {
+      exec(targetPlayFile, (e, data) => {
+        if(e){
+          console.log(e)
+        }
+      })
+    })
+  })
 })
 
 // Quit when all windows are closed.
@@ -49,12 +71,3 @@ app.on('window-all-closed', function () {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
-ipcMain.on('runUpdateCheck', (event, arg) => {
-  runUpdateCheck()
-})
-
-let runUpdateCheck = async () => {
-  let fileStatus = await localFileState.checkStatus()
-  console.log('filestatus',fileStatus)
-}
-

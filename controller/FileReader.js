@@ -3,6 +3,7 @@ const util = require('util')
 const fs = require('fs')
 const readDir = util.promisify(fs.readdir)
 const readFile = util.promisify(fs.readFile)
+const writeFile = util.promisify(fs.writeFile)
 const hash = require('./Hash')
 
 exports.listFilenamesRecursive = async (currentDir, fileArray) => {
@@ -38,15 +39,32 @@ exports.buildFileStatus = async (dataPath) => {
 
     files = await this.listFilenamesRecursive(dataPath, files)
 
-    for (let i = 0; i < files.length; i++)
-    {
+    for (let i = 0; i < files.length; i++) {
         fileHashes[files[i]] = await hash.getHash(files[i])
     }
-    
+
     return fileHashes
 }
 
 exports.getFile = async (dataPath) => {
-    let blob = await readFile(dataPath, {encoding: 'binary'})
+    let blob = await readFile(dataPath, { encoding: 'binary' })
     return blob
+}
+
+exports.updateFile = async (datapath, data, callback) => {
+
+    try {
+        if (fs.existsSync(path.dirname(datapath))) {
+            await writeFile(datapath, data)
+        }
+        else {
+            fs.mkdirSync(path.dirname(datapath), {recursive: true})
+            await writeFile(datapath, data)
+        }
+    }
+    catch (e) {
+        console.log(e)
+    }
+
+    callback(datapath, data)
 }
