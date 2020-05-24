@@ -1,5 +1,5 @@
 "use strict";
-
+require('dotenv').load();
 const fileReader = require('./FileReader')
 const { EventEmitter } = require('events')
 const { net } = require('electron')
@@ -45,7 +45,7 @@ class FileManager {
     getServerState() {
 
         return new Promise((resolve, reject) => {
-            let request = net.request('http://localhost:3000/latest')
+            let request = net.request(`${process.env.HOST}:${process.env.PORT}/latest`)
             let buffer = []
 
             this.isWorking = true
@@ -152,7 +152,7 @@ class FileManager {
 
             if (this.files[key] === 0) {
 
-                let request = net.request(`http://localhost:3000/getFile?file=${key}`)
+                let request = net.request(`${process.env.HOST}:${process.env.PORT}/getFile?file=${key}`)
                 let buffer = []
 
                 request.on('response', (response) => {

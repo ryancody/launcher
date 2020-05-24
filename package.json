@@ -1,23 +1,29 @@
 {
-  "name": "electron-quick-start",
-  "version": "1.0.0",
-  "description": "A minimal Electron application",
+  "name": "moongate-launcher",
+  "version": "0.0.1",
+  "description": "launches the game",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
   },
-  "repository": "https://github.com/electron/electron-quick-start",
-  "keywords": [
-    "Electron",
-    "quick",
-    "start",
-    "tutorial",
-    "demo"
-  ],
-  "author": "GitHub",
-  "license": "CC0-1.0",
+  "build": {
+    "appId": "com.moongate.launcher",
+    "win": {
+      "target": "nsis",
+      "icon": "build/icon.ico"
+    }
+  },
+  "repository": "",
+  "keywords": [],
+  "author": "r.cody",
+  "license": "",
   "devDependencies": {
     "electron": "^8.3.0",
     "electron-builder": "^22.6.1"
+  },
+  "dependencies": {
+    "dotenv": "^8.2.0"
   }
 }
