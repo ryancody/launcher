@@ -1,8 +1,12 @@
 "use strict";
 const HOST = 'https://moongate.ryancody.io'
+const util = require('util')
+const fs = require('fs')
+const writeFile = util.promisify(fs.writeFile)
 const { FileReader } = require('./FileReader')
 const { EventEmitter } = require('events')
 const { net } = require('electron')
+const path = require('path')
 
 class FileManager {
     constructor(appPath) {
@@ -78,17 +82,22 @@ class FileManager {
         this.message = 'comparing local files with server'
         this.emitter.emit('status')
 
+        Object.keys(localHashes).forEach(key => {
+            let cleanKey = key.replace(this.appPath, '').replace(/[\\]/g, '/') 
+            if(cleanKey[0] === '/' || cleanKey[0] === '\\'){
+                cleanKey = cleanKey.slice(1,cleanKey.length)
+            }
+            localHashes[cleanKey] = localHashes[key]
+        })
 
-
-        
         Object.keys(this.serverState).forEach(key => {
-// hash compares are failing because keys are not the same
-// create a 'clean up keys' function to run on each state.
-            if (localHashes[key].localeCompare(this.serverState[key])) {
+            
+            if (localHashes[key] == this.serverState[key]) {
                 this.files[key] = 1
             }
             else {
                 this.files[key] = 0
+                // console.log('not equal', localHashes[key], this.serverState[key])
             }
         })
 

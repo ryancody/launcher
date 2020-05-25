@@ -5,7 +5,7 @@ const readDir = util.promisify(fs.readdir)
 const readFile = util.promisify(fs.readFile)
 const hash = require('./Hash')
 
-class DirectoryReader {
+class FileReader {
     constructor (appPath, dataPath) {
         this.appPath = appPath 
         this.dataPath = dataPath
@@ -44,7 +44,7 @@ class DirectoryReader {
         let files = []
         let fileHashes = {}
         
-        files = await this.listFilenamesRecursive(path.join(appPath, this.dataPath))
+        files = await this.listFilenamesRecursive(path.join(this.appPath, this.dataPath))
         
         for (let i = 0; i < files.length; i++) {
             fileHashes[files[i]] = await hash.getHash(files[i])
@@ -59,4 +59,4 @@ class DirectoryReader {
     }
 }
 
-exports.DirectoryReader = DirectoryReader
+exports.FileReader = FileReader

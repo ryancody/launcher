@@ -2,7 +2,6 @@
 const { app, BrowserWindow } = require('electron')
 const path = require('path')
 const { ipcMain } = require('electron')
-const fileState = require('./controller/FileState')
 const {FileManager} = require('./controller/FileManager')
 const exec = require('child_process').execFile
 const targetPlayFile = './data/Client/NetworkRpg.exe'
