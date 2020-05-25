@@ -6,7 +6,7 @@ const fileState = require('./controller/FileState')
 const {FileManager} = require('./controller/FileManager')
 const exec = require('child_process').execFile
 const targetPlayFile = './data/Client/NetworkRpg.exe'
-let fm = new FileManager('data')
+let fm = new FileManager(app.getAppPath())
 let mainWindow
   
 function createWindow() {

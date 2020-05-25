@@ -1,12 +1,13 @@
 "use strict";
 const HOST = 'https://moongate.ryancody.io'
-const fileReader = require('./FileReader')
+const { FileReader } = require('./FileReader')
 const { EventEmitter } = require('events')
 const { net } = require('electron')
 
 class FileManager {
-    constructor(dataPath) {
-        this.dataPath = dataPath
+    constructor(appPath) {
+        this.dataPath = 'data'
+        this.appPath = appPath
         this.serverState = {}
         this.localState = {}
         this.files = {}
@@ -14,6 +15,7 @@ class FileManager {
         this.isWorking = false
         this.message = ''
         this.emitter = new EventEmitter()
+        this.fileReader = new FileReader(this.appPath, this.dataPath)
 
         this.emitter.on('status', () => {
             //console.log('status fired!')
@@ -71,14 +73,18 @@ class FileManager {
     }
 
     async compareStates() {
-        let localHashes = await fileReader.buildFileStatus(this.dataPath)
+        let localHashes = await this.fileReader.buildFileStatus(this.appPath, this.dataPath)
         this.isWorking = true
         this.message = 'comparing local files with server'
         this.emitter.emit('status')
 
-        Object.keys(this.serverState).forEach(key => {
 
-            if (localHashes.hasOwnProperty(key) && localHashes[key] === this.serverState[key]) {
+
+        
+        Object.keys(this.serverState).forEach(key => {
+// hash compares are failing because keys are not the same
+// create a 'clean up keys' function to run on each state.
+            if (localHashes[key].localeCompare(this.serverState[key])) {
                 this.files[key] = 1
             }
             else {
